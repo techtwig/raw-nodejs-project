@@ -1,3 +1,4 @@
+const util = require("util");
 const routes = {
     get: {},
     post: {}
@@ -17,14 +18,24 @@ module.exports = {
                 res.end();
                 return;
             }
-            await routes.post[req.url](req, res);
+            const callback = routes.post[req.url];
+            if (util.types.isAsyncFunction(callback)) {
+                await callback(req, res);
+            } else {
+                callback(req, res);
+            }
         } else {
             if (!routes.get.hasOwnProperty(req.url)) {
                 res.write("Not found");
                 res.end();
                 return;
             }
-            await routes.get[req.url](req, res);
+            const callback = routes.get[req.url];
+            if (util.types.isAsyncFunction(callback)) {
+                await callback(req, res);
+            } else {
+                callback(req, res);
+            }
         }
         res.end();
     }
